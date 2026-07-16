@@ -14,3 +14,6 @@ wheels/
 *.csv
 *.jsonl
 *.json
+
+# Tweet content drafts
+tweet*
