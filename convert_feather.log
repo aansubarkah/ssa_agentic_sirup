@@ -1,0 +1,65 @@
+C:\Users\aansubarkah\AppData\Local\uv\cache\archive-v0\Dg7r0ignIEKd6CwhXoEJe\Lib\site-packages\pandas\io\feather_format.py:77: FutureWarning: pyarrow.feather.write_feather is deprecated as of 24.0.0. Use pyarrow.ipc.new_file() / RecordBatchFileWriter instead. Feather V2 is the Arrow IPC file format.
+  feather.write_feather(df, handles.handle, **kwargs)
+Reading JSONL in chunks...
+  100,000 records read (3.1%)
+  200,000 records read (6.1%)
+  300,000 records read (9.2%)
+  400,000 records read (12.2%)
+  500,000 records read (15.3%)
+  600,000 records read (18.4%)
+  700,000 records read (21.4%)
+  800,000 records read (24.5%)
+  900,000 records read (27.5%)
+  1,000,000 records read (30.6%)
+  1,100,000 records read (33.6%)
+  1,200,000 records read (36.7%)
+  1,300,000 records read (39.8%)
+  1,400,000 records read (42.8%)
+  1,500,000 records read (45.9%)
+  1,600,000 records read (48.9%)
+  1,700,000 records read (52.0%)
+  1,800,000 records read (55.1%)
+  1,900,000 records read (58.1%)
+  2,000,000 records read (61.2%)
+  2,100,000 records read (64.2%)
+  2,200,000 records read (67.3%)
+  2,300,000 records read (70.4%)
+  2,400,000 records read (73.4%)
+  2,500,000 records read (76.5%)
+  2,600,000 records read (79.5%)
+  2,700,000 records read (82.6%)
+  2,800,000 records read (85.6%)
+  2,900,000 records read (88.7%)
+  3,000,000 records read (91.8%)
+  3,100,000 records read (94.8%)
+  3,200,000 records read (97.9%)
+Read 3,269,263 records in 136.0s
+Concatenating...
+Shape: (3269263, 21)
+Columns: ['idBulan', 'pagu', 'satuanKerja', 'isPDN', 'idlokasi', 'idKldi', 'metode', 'sumberDana', 'kldi', 'isUMK', 'idsLokasi', 'id_referensi', 'lokasi', 'jenisPengadaan', 'idSatker', 'pemilihan', 'idMetode', 'id', 'idJenisPengadaan', 'paket', 'pds']
+Dtypes:
+idBulan             int64
+pagu                int64
+satuanKerja           str
+isPDN                bool
+idlokasi            int64
+idKldi                str
+metode                str
+sumberDana            str
+kldi                  str
+isUMK                bool
+idsLokasi             str
+id_referensi        int64
+lokasi                str
+jenisPengadaan        str
+idSatker            int64
+pemilihan             str
+idMetode            int64
+id                  int64
+idJenisPengadaan    int64
+paket                 str
+pds                  bool
+dtype: object
+Writing feather...
+Done! Size: 330.4 MB
+Total time: 138.4s
