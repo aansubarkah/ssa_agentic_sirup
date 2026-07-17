@@ -136,8 +136,8 @@ The legacy per-year scripts (`pull_sirup.py`, `pull_sirup_2025.py`, `convert_fea
 | `isUMK` | Small business (UMK) requirement flag |
 | `metode` | Procurement method (tender/e-purchasing/etc.) |
 | `pemilihan` | Selection method |
-| `kldi` | Ministry/agency name |
-| `idKldi` | Ministry/agency code (e.g. `K9` = Ministry of Health) |
+| `kldi` | Ministry/agency **name** (e.g. `Kementerian Kesehatan`, `Mahkamah Agung`) |
+| `idKldi` | Ministry/agency **code** (e.g. `K9`, `L40` = Mahkamah Agung) |
 | `satuanKerja` | Work unit |
 | `lokasi` | Location |
 | `id` | Internal SIRUP record ID |
@@ -145,5 +145,5 @@ The legacy per-year scripts (`pull_sirup.py`, `pull_sirup_2025.py`, `convert_fea
 ### Common Agent Tasks
 
 - **Add a new budget year**: Just run `uv run sirup.py --tahun YYYY` — no new script needed. The year is injected into the `tahunAnggaran` request param, the output/checkpoint filenames (`sirup_YYYY_*`), and the `tahunAnggaranPilihan` field of the `PLAY_SESSION` cookie. If the cookie is expired, refresh the `PLAY_SESSION` template at the top of `sirup.py`.
-- **Filter by different KLDI**: In `process_2025.py`, change `FILTER_KLDI` (e.g. `K2` = Kementerian PUPR).
+- **Filter by different KLDI**: The server's `kldi` API param filters the agency **name**, not the code, so it can't filter by `idKldi`. `sirup.py`/`sirup.ipynb` therefore pull **all** agencies and filter by `idKldi` **client-side** (e.g. `K9`, `L40`). If you already have the full-year Feather (`sirup_YYYY_all.feather`), filter it directly instead of re-pulling — see the "Filter existing Feather" cell in the notebook. The code-to-name map is in `list_of_kldi_2026.csv`.
 - **Change page size**: Adjust `PAGE_SIZE` — values above 100k may be rejected by the server.
