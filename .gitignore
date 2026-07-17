@@ -6,6 +6,9 @@ dist/
 wheels/
 *.egg-info
 
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
 # Virtual environments
 .venv
 
