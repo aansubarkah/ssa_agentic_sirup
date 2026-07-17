@@ -26,26 +26,28 @@ uv sync
 
 ### Usage
 
-**1. Download data for a budget year**
+A **single script**, `sirup.py`, handles everything: pass the budget year (`--tahun`) and it pulls the data, then converts it to Feather + pipe-delimited CSV.
+
+**1. Download + convert data for a budget year**
 
 ```bash
-# 2026 budget year
-uv run pull_sirup.py
+# 2026 budget year (pull JSONL, then convert to feather + csv)
+uv run sirup.py --tahun 2026
 
 # 2025 budget year
-uv run pull_sirup_2025.py
+uv run sirup.py --tahun 2025
+
+# Any other year that SIRUP has published
+uv run sirup.py --tahun 2024
 ```
 
 This may take a while (~3M records). It's resume-safe — if interrupted, re-run the same command and it continues from where it left off.
 
-**2. Convert raw JSONL to Feather format**
+**2. Optional flags**
 
 ```bash
-# 2026 data
-uv run convert_feather.py
-
-# 2025 data (also filters for Ministry of Health)
-uv run process_2025.py
+uv run sirup.py --tahun 2026 --no-convert      # pull JSONL only, skip conversion
+uv run sirup.py --tahun 2025 --convert-only    # convert an existing JSONL only (skip the pull)
 ```
 
 **3. Output files**
@@ -54,12 +56,13 @@ uv run process_2025.py
 |---|---|
 | `sirup_YYYY_all.jsonl` | Raw JSON Lines — one JSON object per line, one per procurement package |
 | `sirup_YYYY_all.feather` | All records in Apache Feather format (fast to read with pandas/polars) |
-| `sirup_2025_K9.feather` | Filtered: Ministry of Health (K9) procurement packages |
-| `sirup_2025_K9.csv` | Same as above, pipe-delimited CSV |
+| `sirup_YYYY_all.csv` | Same records, pipe-delimited CSV (`|` separator) |
+
+> `YYYY` is the budget year you passed via `--tahun`.
 
 ### Troubleshooting
 
-- **Session expired**: Open `sirup.inaproc.id` in your browser, log in, copy the new `PLAY_SESSION` cookie value, and update it in the script.
+- **Session expired**: Open `sirup.inaproc.id` in your browser, log in, copy the new `PLAY_SESSION` cookie value, and update the `PLAY_SESSION` template at the top of `sirup.py`.
 - **Empty results**: The API may be down or the budget year data hasn't been published yet. Check `sirup.inaproc.id` directly.
 
 ### Project Structure
@@ -69,10 +72,11 @@ uv run process_2025.py
 ├── .python-version          # Python version pin for uv
 ├── pyproject.toml           # Dependencies (httpx, pandas, pyarrow)
 ├── main.py                  # Stub entry point
-├── pull_sirup.py            # Pull 2026 data → JSONL
-├── pull_sirup_2025.py       # Pull 2025 data → JSONL
-├── convert_feather.py       # 2026 JSONL → Feather
-├── process_2025.py          # 2025 JSONL → Feather + filter K9
+├── sirup.py                 # ★ Single entry point: pull + convert for any year (--tahun)
+├── pull_sirup.py            # (legacy) Pull 2026 data → JSONL
+├── pull_sirup_2025.py       # (legacy) Pull 2025 data → JSONL
+├── convert_feather.py       # (legacy) 2026 JSONL → Feather
+├── process_2025.py          # (legacy) 2025 JSONL → Feather + filter K9
 └── pages_info.md            # API reference notes
 ```
 
@@ -84,18 +88,19 @@ Internal use. Data sourced from [sirup.inaproc.id](https://sirup.inaproc.id).
 
 ## Agent AI Guide
 
-> **TL;DR**: This is a data-extraction pipeline. Scripts talk to a public government API, paginate through results, dump JSONL, then convert to Feather/CSV. No auth tokens needed — just cookie headers that may need refreshing.
+> **TL;DR**: This is a data-extraction pipeline. The single script `sirup.py` talks to a public government API, paginates through results, dumps JSONL, then converts to Feather/CSV. No auth tokens needed — just cookie headers that may need refreshing.
 
 ### Architecture
 
 ```
-pull_sirup.py          →  sirup_2026_all.jsonl       (raw API dump, 2026 budget year)
-pull_sirup_2025.py     →  sirup_2025_all.jsonl       (raw API dump, 2025 budget year)
+sirup.py --tahun YYYY  →  sirup_YYYY_all.jsonl        (raw API dump)
+                        →  sirup_YYYY_all.feather      (JSONL → Arrow Feather)
+                        →  sirup_YYYY_all.csv          (JSONL → pipe-delimited CSV)
 
-convert_feather.py     →  sirup_2026_all.feather      (JSONL → Arrow Feather)
-process_2025.py        →  sirup_2025_all.feather      (JSONL → Feather)
-                       →  sirup_2025_K9.feather/.csv  (filtered: Kementerian Kesehatan)
+Flags: --no-convert (pull only) · --convert-only (skip pull)
 ```
+
+The legacy per-year scripts (`pull_sirup.py`, `pull_sirup_2025.py`, `convert_feather.py`, `process_2025.py`) still exist but `sirup.py` supersedes them — prefer it for any new budget year.
 
 ### Key Details
 
@@ -103,7 +108,7 @@ process_2025.py        →  sirup_2025_all.feather      (JSONL → Feather)
 |---|---|
 | **API endpoint** | `GET https://sirup.inaproc.id/sirup/caripaketctr/search` |
 | **Pagination** | DataTables protocol — `start` + `length` params, max `length=100_000` per request |
-| **Resume safety** | Checkpoint files (`sirup_checkpoint.json`, `sirup_2025_checkpoint.json`) track offset; JSONL is append-only |
+| **Resume safety** | Per-year checkpoint files (`sirup_YYYY_checkpoint.json`) track offset; JSONL is append-only |
 | **Record count** | ~3.2M records for 2026, varies for 2025 |
 | **Output formats** | JSONL (raw) → Feather (fast columnar) → CSV pipe-delimited (filtered) |
 | **Filter example** | `idKldi == "K9"` = Kementerian Kesehatan (Ministry of Health) |
@@ -134,6 +139,6 @@ process_2025.py        →  sirup_2025_all.feather      (JSONL → Feather)
 
 ### Common Agent Tasks
 
-- **Add a new budget year**: Copy `pull_sirup.py` to `pull_sirup_YYYY.py`, change `tahunAnggaran`, output file, and checkpoint file. Update the `PLAY_SESSION` cookie's `tahunAnggaranPilihan`.
+- **Add a new budget year**: Just run `uv run sirup.py --tahun YYYY` — no new script needed. The year is injected into the `tahunAnggaran` request param, the output/checkpoint filenames (`sirup_YYYY_*`), and the `tahunAnggaranPilihan` field of the `PLAY_SESSION` cookie. If the cookie is expired, refresh the `PLAY_SESSION` template at the top of `sirup.py`.
 - **Filter by different KLDI**: In `process_2025.py`, change `FILTER_KLDI` (e.g. `K2` = Kementerian PUPR).
 - **Change page size**: Adjust `PAGE_SIZE` — values above 100k may be rejected by the server.
