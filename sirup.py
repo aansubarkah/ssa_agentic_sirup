@@ -295,8 +295,8 @@ def main():
         description="Pull SIRUP Inaproc data for a budget year and convert to Feather + CSV.",
     )
     parser.add_argument(
-        "--tahun", "-t", required=True, type=int,
-        help="Budget year (tahun anggaran), e.g. 2025, 2026",
+        "--tahun", "--ta", "-t", required=True, type=int,
+        help="Budget year (tahun anggaran); --ta is shorthand for the same, e.g. 2025, 2026",
     )
     parser.add_argument(
         "--no-convert", action="store_true",

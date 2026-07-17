@@ -26,13 +26,18 @@ uv sync
 
 ### Usage
 
-A **single script**, `sirup.py`, handles everything: pass the budget year (`--tahun`) and it pulls the data, then converts it to Feather + pipe-delimited CSV.
+A **single script**, `sirup.py`, handles everything: pass the budget year and it pulls the data, then converts it to Feather + pipe-delimited CSV.
+
+The budget year is set with `--tahun` (or its shorthands `--ta` / `-t`). **`ta` is short for *Tahun Anggaran*** — Indonesian for "budget year." When a user says "ta 2026" or "tahun 2025," they mean the budget year to pull.
 
 **1. Download + convert data for a budget year**
 
 ```bash
 # 2026 budget year (pull JSONL, then convert to feather + csv)
 uv run sirup.py --tahun 2026
+
+# Same thing using the --ta shorthand
+uv run sirup.py --ta 2026
 
 # 2025 budget year
 uv run sirup.py --tahun 2025
