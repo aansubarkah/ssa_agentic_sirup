@@ -14,6 +14,8 @@ wheels/
 *.csv
 *.jsonl
 *.json
+# ...but keep the KLDI reference list (tracked)
+!list_of_kldi_2026.csv
 
 # Tweet content drafts
 tweet*
